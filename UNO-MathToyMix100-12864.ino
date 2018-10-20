@@ -16,7 +16,7 @@
 #define KEYPAD_A_PIN 11
 #define KEYPAD_B_PIN 12
 
-U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clo  ck=*/ 15 /* A4 */ , /* data=*/ 16 /* A2 */, /* CS=*/ 14 /* A3 */, /* reset=*/ 17); // 17, U8X8_PIN_NONE
+U8G2_ST7920_128X64_F_SW_SPI display(U8G2_R0, /* clo  ck=*/ 15 /* A4 */ , /* data=*/ 16 /* A2 */, /* CS=*/ 14 /* A3 */, /* reset=*/ 17); // 17, U8X8_PIN_NONE
 
 unsigned long keypadDebounceTime = 200; // 200 milliseconds debounce time
 unsigned long keypadLastDebounce = 0;
@@ -25,7 +25,7 @@ String strReturnNumber = "";
 int intReturnNumber = -1;
 
 int questionCount = 0;
-const int questionTotal = 100;
+const int questionTotal = 50;
 int currentMode = 0; // 0 - show question, 1 - show answer
 String currentQuestion = "";
 String currentAnswer = "";
@@ -82,6 +82,14 @@ void scanKeypadFunctionKeyA(int pinNumber) {
         if (currentMode == 0)
         {
           currentMode = 1;
+          if (intReturnNumber == extractResultFromAnswer(currentAnswer))
+          {
+            shortBeep(ALARM_PIN);
+          }
+          else
+          {
+            wrongBeep(ALARM_PIN);
+          }
         }
         else
         {
@@ -145,53 +153,61 @@ void scanKeypad() {
 
 void setup(void) {
   randomSeed(analogRead(5));
-  u8g2.begin();
+  display.begin();
+  display.setFontPosTop();
+
+  display.clearBuffer();
+  display.setFont(u8g2_font_helvB12_tf); // u8g2_font_helvB08_tf, u8g2_font_6x13_tn
+  display.setCursor(5, 25);
+  display.print("Math Exercises");
+  display.sendBuffer();
   setupKeypad();
+  delay(2000);
   currentMode = 0;
   currentQuestion = generateMathQuestion(currentAnswer);
 }
 
 void loop(void) {
   scanKeypad();
-  u8g2.firstPage();
+  display.firstPage();
   do {
     drawMath();
-  } while (u8g2.nextPage());
+  } while (display.nextPage());
 }
 
 void drawMath(void) {
-  u8g2.setFont(u8g2_font_helvB10_tf); // u8g2_font_helvB08_tf, u8g2_font_6x13_tn
-  u8g2.setCursor(1, 1);
-  u8g2.print(questionCount);
-  u8g2.print("/");
-  u8g2.print(questionTotal);
+  display.setFont(u8g2_font_helvB10_tf); // u8g2_font_helvB08_tf, u8g2_font_6x13_tn
+  display.setCursor(1, 1);
+  display.print(questionCount);
+  display.print("/");
+  display.print(questionTotal);
 
-  u8g2.setFont(u8g2_font_helvB12_tf); // u8g2_font_helvB08_tf, u8g2_font_10x20_tf
-  int stringWidth = u8g2.getStrWidth(string2char(currentAnswer));
-  u8g2.setCursor((128 - stringWidth) / 2, 28);
+  display.setFont(u8g2_font_helvB12_tf); // u8g2_font_helvB08_tf, u8g2_font_10x20_tf
+  int stringWidth = display.getStrWidth(string2char(currentAnswer));
+  display.setCursor((128 - stringWidth) / 2, 25);
   if (currentMode == 0)
   {
-    u8g2.print(currentQuestion);
+    display.print(currentQuestion);
     if (strReturnNumber.length() > 0)
     {
-      u8g2.setCursor(1, 50);
-      u8g2.print(strReturnNumber);
+      display.setCursor(50, 48);
+      display.print(strReturnNumber);
     }
   }
   else
   {
-    u8g2.print(currentAnswer);
-    u8g2.setCursor(1, 50);
-    u8g2.print(strReturnNumber);
-    if (intReturnNumber == currentAnswer.toInt())
+    display.print(currentAnswer);
+    display.setCursor(50, 48);
+    display.print(strReturnNumber);
+    display.setFont(u8g2_font_open_iconic_check_2x_t); // u8g2_font_helvB08_tf, u8g2_font_10x20_tf, u8g2_font_helvB12_tf, u8g2_font_open_iconic_check_2x_t
+    display.setCursor(85, 46);
+    if (intReturnNumber == extractResultFromAnswer(currentAnswer))
     {
-      u8g2.print("V");
-      shortBeep(ALARM_PIN);
+      display.print("A");
     }
     else
     {
-      u8g2.print("X");
-      longBeep(ALARM_PIN);
+      display.print("B");
     }
   }
 }
@@ -205,8 +221,17 @@ void software_Reboot() {
 
 void shortBeep(int Alarm_PIN) {
   digitalWrite(Alarm_PIN, HIGH);
-  delay(200);
+  delay(5);
   digitalWrite(Alarm_PIN, LOW);
+}
+
+void wrongBeep(int Alarm_PIN) {
+  for (int i = 0; i < 8; ++i) {
+    digitalWrite(Alarm_PIN, HIGH);
+    delay(30);
+    digitalWrite(Alarm_PIN, LOW);
+    delay(30);
+  }
 }
 
 void longBeep(int Alarm_PIN) {
@@ -223,6 +248,19 @@ char* string2char(String command) {
   if (command.length() != 0) {
     char *p = const_cast<char*>(command.c_str());
     return p;
+  }
+}
+
+int extractResultFromAnswer(String Answer) {
+  int endPos = Answer.indexOf("=");
+  if (endPos > 0)
+  {
+    String tempString = Answer.substring(endPos + 1);
+    return tempString.toInt();
+  }
+  else
+  {
+    return 0;
   }
 }
 
