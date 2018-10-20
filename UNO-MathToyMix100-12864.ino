@@ -81,24 +81,13 @@ void scanKeypadFunctionKeyA(int pinNumber) {
         keypadDebounce = false;
         if (currentMode == 0)
         {
-          u8g2.setFont(u8g2_font_helvB10_tf); // u8g2_font_helvB08_tf, u8g2_font_6x13_tn
-          u8g2.setCursor(1, 40);
-          u8g2.print(strReturnNumber);
-          if (intReturnNumber == currentAnswer.toInt())
-          {
-            u8g2.print("V");
-            shortBeep(ALARM_PIN);
-          }
-          else
-          {
-            u8g2.print("X");
-            longBeep(ALARM_PIN);
-          }
           currentMode = 1;
         }
         else
         {
           currentMode = 0;
+          strReturnNumber = "";
+          intReturnNumber = -1;
           currentQuestion = generateMathQuestion(currentAnswer);
           questionCount++;
           if (questionCount >= questionTotal + 1)
@@ -183,10 +172,27 @@ void drawMath(void) {
   if (currentMode == 0)
   {
     u8g2.print(currentQuestion);
+    if (strReturnNumber.length() > 0)
+    {
+      u8g2.setCursor(1, 50);
+      u8g2.print(strReturnNumber);
+    }
   }
   else
   {
     u8g2.print(currentAnswer);
+    u8g2.setCursor(1, 50);
+    u8g2.print(strReturnNumber);
+    if (intReturnNumber == currentAnswer.toInt())
+    {
+      u8g2.print("V");
+      shortBeep(ALARM_PIN);
+    }
+    else
+    {
+      u8g2.print("X");
+      longBeep(ALARM_PIN);
+    }
   }
 }
 
