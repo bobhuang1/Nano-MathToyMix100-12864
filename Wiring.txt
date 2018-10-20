@@ -1,0 +1,28 @@
+New Different Version
+1 GND
+2 NC
+3 VCC
+4 NC
+5 RS/CS A0=D14
+6 RW/SID/SDA A2=D16
+7 E/SCK A1=D15
+8 RST A3=D17
+9 LED+
+10 LED-
+
+Keypad
+D0  1
+D1  7
+D2  6 (right, interrupt)
+D3  4 (left, interrupt)
+D4  0
+D5  2
+D6  5
+D7  8
+D8  .
+D9  3
+D10 9
+D11 Enter (fire, A)
+D12 Backspace (B)
+D13 Alarm Output
+
