@@ -25,7 +25,7 @@ String strReturnNumber = "";
 int intReturnNumber = -1;
 
 int questionCount = 0;
-const int questionTotal = 50;
+const int questionTotal = 20;
 int currentMode = 0; // 0 - show question, 1 - show answer
 String currentQuestion = "";
 String currentAnswer = "";
@@ -89,6 +89,7 @@ void scanKeypadFunctionKeyA(int pinNumber) {
           else
           {
             wrongBeep(ALARM_PIN);
+            questionCount = -1;
           }
         }
         else
@@ -178,9 +179,16 @@ void loop(void) {
 void drawMath(void) {
   display.setFont(u8g2_font_helvB10_tf); // u8g2_font_helvB08_tf, u8g2_font_6x13_tn
   display.setCursor(1, 1);
-  display.print(questionCount);
-  display.print("/");
-  display.print(questionTotal);
+  if (questionCount > -1)
+  {
+    display.print(questionCount);
+    display.print("/");
+    display.print(questionTotal);
+  }
+  else
+  {
+    display.print("Wrong!");
+  }
 
   display.setFont(u8g2_font_helvB12_tf); // u8g2_font_helvB08_tf, u8g2_font_10x20_tf
   int stringWidth = display.getStrWidth(string2char(currentAnswer));
@@ -271,7 +279,7 @@ String generateMathQuestion(String &Answer) {
   const String strDivideySign = String((char)247);
   const String strEqualSign = "=";
   String MathQuestion = "";
-  int intFirstOperationType = random(1, 4); // 1 - plus, 2 - minus, 3 - multiply
+  int intFirstOperationType = random(1, 5); // 1 - plus, 2 - minus, 3 - multiply, 4 - divide
   int intSecondOperationType = 1;
   int intFirstNumber = 1;
   int intSecondNumber = 1;
@@ -322,7 +330,7 @@ String generateMathQuestion(String &Answer) {
       Answer = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + String(intFirstNumber - (intSecondNumber * intThirdNumber));
     }
   }
-  else // first operation is plus
+  else  if (intFirstOperationType == 1)// first operation is plus
   {
     intSecondOperationType = random(1, 4);
     intFirstNumber = random(1, 100);
@@ -347,6 +355,13 @@ String generateMathQuestion(String &Answer) {
       MathQuestion = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + "?";
       Answer = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + String(intFirstNumber + (intSecondNumber * intThirdNumber));
     }
+  }
+  else // first operation is divide
+  {
+    intFirstNumber = random(2, 10);
+    intSecondNumber = random(2, 10);
+    MathQuestion = String(intFirstNumber * intSecondNumber) + strDivideySign + String(intFirstNumber) + strEqualSign + "?";
+    Answer = String(intFirstNumber * intSecondNumber) + strDivideySign + String(intFirstNumber) + strEqualSign + String(intSecondNumber);
   }
   return MathQuestion;
 }
