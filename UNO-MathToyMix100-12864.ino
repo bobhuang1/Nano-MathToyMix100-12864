@@ -18,6 +18,8 @@
 
 U8G2_ST7920_128X64_F_SW_SPI display(U8G2_R0, /* clo  ck=*/ 15 /* A4 */ , /* data=*/ 16 /* A2 */, /* CS=*/ 14 /* A3 */, /* reset=*/ 17); // 17, U8X8_PIN_NONE
 
+#define NUMBER_CEILING 2000
+
 unsigned long keypadDebounceTime = 200; // 200 milliseconds debounce time
 unsigned long keypadLastDebounce = 0;
 bool keypadDebounce = false;
@@ -298,7 +300,7 @@ String generateMathQuestion(String &Answer) {
     }
     else
     {
-      intThirdNumber = random(1, 100);
+      intThirdNumber = random(1, NUMBER_CEILING);
       MathQuestion = String(intFirstNumber) + strMultiplySign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + "?";
       Answer = String(intFirstNumber) + strMultiplySign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber * intSecondNumber + intThirdNumber);
     }
@@ -306,11 +308,11 @@ String generateMathQuestion(String &Answer) {
   else if (intFirstOperationType == 2)
   {
     intSecondOperationType = random(1, 4);
-    intFirstNumber = random(50, 100);
+    intFirstNumber = random(50, NUMBER_CEILING);
     if (intSecondOperationType == 1)
     {
       intSecondNumber = random(0, intFirstNumber);
-      intThirdNumber = random(1, 100);
+      intThirdNumber = random(1, NUMBER_CEILING);
       MathQuestion = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + "?";
       Answer = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber - intSecondNumber + intThirdNumber);
     }
@@ -325,7 +327,7 @@ String generateMathQuestion(String &Answer) {
     {
       intSecondNumber = random(1, 10);
       intThirdNumber = random(1, 10);
-      intFirstNumber = random(intSecondNumber * intThirdNumber, 100);
+      intFirstNumber = random(intSecondNumber * intThirdNumber, NUMBER_CEILING);
       MathQuestion = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + "?";
       Answer = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + String(intFirstNumber - (intSecondNumber * intThirdNumber));
     }
@@ -333,17 +335,17 @@ String generateMathQuestion(String &Answer) {
   else  if (intFirstOperationType == 1)// first operation is plus
   {
     intSecondOperationType = random(1, 4);
-    intFirstNumber = random(1, 100);
+    intFirstNumber = random(1, NUMBER_CEILING);
     if (intSecondOperationType == 1)
     {
-      intSecondNumber = random(1, 100);
-      intThirdNumber = random(1, 100);
+      intSecondNumber = random(1, NUMBER_CEILING);
+      intThirdNumber = random(1, NUMBER_CEILING);
       MathQuestion = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + "?";
       Answer = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber + intSecondNumber + intThirdNumber);
     }
     else if (intSecondOperationType == 2)
     {
-      intSecondNumber = random(1, 100);
+      intSecondNumber = random(1, NUMBER_CEILING);
       intThirdNumber = random(1, (intFirstNumber - intSecondNumber));
       MathQuestion = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + "?";
       Answer = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber + intSecondNumber - intThirdNumber);
