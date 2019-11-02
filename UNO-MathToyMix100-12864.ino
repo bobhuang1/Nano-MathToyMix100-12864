@@ -18,7 +18,7 @@
 
 U8G2_ST7920_128X64_F_SW_SPI display(U8G2_R0, /* clo  ck=*/ 15 /* A4 */ , /* data=*/ 16 /* A2 */, /* CS=*/ 14 /* A3 */, /* reset=*/ 17); // 17, U8X8_PIN_NONE
 
-#define NUMBER_CEILING 2000
+#define NUMBER_CEILING 4000
 
 unsigned long keypadDebounceTime = 200; // 200 milliseconds debounce time
 unsigned long keypadLastDebounce = 0;
@@ -179,7 +179,7 @@ void loop(void) {
 }
 
 void drawMath(void) {
-  display.setFont(u8g2_font_helvB10_tf); // u8g2_font_helvB08_tf, u8g2_font_6x13_tn
+  display.setFont(u8g2_font_helvB08_tf); // u8g2_font_helvB08_tf, u8g2_font_6x13_tn
   display.setCursor(1, 1);
   if (questionCount > -1)
   {
@@ -192,7 +192,7 @@ void drawMath(void) {
     display.print("Wrong!");
   }
 
-  display.setFont(u8g2_font_helvB12_tf); // u8g2_font_helvB08_tf, u8g2_font_10x20_tf
+  display.setFont(u8g2_font_helvR08_tf); // u8g2_font_helvB08_tf, u8g2_font_10x20_tf
   int stringWidth = display.getStrWidth(string2char(currentAnswer));
   display.setCursor((128 - stringWidth) / 2, 25);
   if (currentMode == 0)
@@ -367,4 +367,3 @@ String generateMathQuestion(String &Answer) {
   }
   return MathQuestion;
 }
-
