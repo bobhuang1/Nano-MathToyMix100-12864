@@ -18,7 +18,7 @@
 
 U8G2_ST7920_128X64_F_SW_SPI display(U8G2_R0, /* clo  ck=*/ 15 /* A4 */ , /* data=*/ 16 /* A2 */, /* CS=*/ 14 /* A3 */, /* reset=*/ 17); // 17, U8X8_PIN_NONE
 
-#define NUMBER_CEILING 4000
+#define NUMBER_CEILING 10000
 
 unsigned long keypadDebounceTime = 200; // 200 milliseconds debounce time
 unsigned long keypadLastDebounce = 0;
@@ -290,8 +290,8 @@ String generateMathQuestion(String &Answer) {
   if (intFirstOperationType == 3)
   {
     intSecondOperationType = random(1, 3);
-    intFirstNumber = random(1, 10);
-    intSecondNumber = random(1, 10);
+    intFirstNumber = random(1, 100);
+    intSecondNumber = random(1, 100);
     if (intSecondOperationType == 2)
     {
       intThirdNumber = random(1, intFirstNumber * intSecondNumber);
@@ -352,16 +352,16 @@ String generateMathQuestion(String &Answer) {
     }
     else
     {
-      intSecondNumber = random(1, 10);
-      intThirdNumber = random(1, 10);
+      intSecondNumber = random(1, 100);
+      intThirdNumber = random(1, 100);
       MathQuestion = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + "?";
       Answer = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + String(intFirstNumber + (intSecondNumber * intThirdNumber));
     }
   }
   else // first operation is divide
   {
-    intFirstNumber = random(2, 10);
-    intSecondNumber = random(2, 10);
+    intFirstNumber = random(2, 100);
+    intSecondNumber = random(2, 100);
     MathQuestion = String(intFirstNumber * intSecondNumber) + strDivideySign + String(intFirstNumber) + strEqualSign + "?";
     Answer = String(intFirstNumber * intSecondNumber) + strDivideySign + String(intFirstNumber) + strEqualSign + String(intSecondNumber);
   }
