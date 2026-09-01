@@ -255,10 +255,7 @@ void noBeep(int Alarm_PIN) {
 }
 
 char* string2char(String command) {
-  if (command.length() != 0) {
-    char *p = const_cast<char*>(command.c_str());
-    return p;
-  }
+  return const_cast<char*>(command.c_str());
 }
 
 int extractResultFromAnswer(String Answer) {
