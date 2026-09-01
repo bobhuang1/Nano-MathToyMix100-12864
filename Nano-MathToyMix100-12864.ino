@@ -1,4 +1,3 @@
-#include <avr/wdt.h>
 #include <U8g2lib.h>
 #include "StringHelpers.h"
 #include "AlarmBeeper.h"
@@ -222,13 +221,6 @@ void drawMath(void) {
     {
       display.print("B");
     }
-  }
-}
-
-void software_Reboot() {
-  wdt_enable(WDTO_15MS);
-  while (1)
-  {
   }
 }
 
