@@ -1,5 +1,8 @@
 #include <avr/wdt.h>
 #include <U8g2lib.h>
+#include "StringHelpers.h"
+#include "AlarmBeeper.h"
+#include "MathQuizGenerator.h"
 
 #define ALARM_PIN 13
 #define KEYPAD_0_PIN 4
@@ -47,7 +50,7 @@ void setupKeypad() {
   pinMode(KEYPAD_A_PIN, INPUT_PULLUP);
   pinMode(KEYPAD_B_PIN, INPUT_PULLUP);
   pinMode(ALARM_PIN, OUTPUT);
-  shortBeep(ALARM_PIN);
+  beep(ALARM_PIN, true, 5);
 }
 
 void scanKeypadSub(int pinNumber, String strNumber) {
@@ -86,11 +89,11 @@ void scanKeypadFunctionKeyA(int pinNumber) {
           currentMode = 1;
           if (intReturnNumber == extractResultFromAnswer(currentAnswer))
           {
-            shortBeep(ALARM_PIN);
+            beep(ALARM_PIN, true, 5);
           }
           else
           {
-            wrongBeep(ALARM_PIN);
+            beepPattern(ALARM_PIN, true, 8, 30, 30);
             questionCount = -1;
           }
         }
@@ -99,7 +102,7 @@ void scanKeypadFunctionKeyA(int pinNumber) {
           currentMode = 0;
           strReturnNumber = "";
           intReturnNumber = -1;
-          currentQuestion = generateMathQuestion(currentAnswer);
+          currentQuestion = generateMathQuestion(currentAnswer, NUMBER_CEILING, true);
           questionCount++;
           if (questionCount >= questionTotal + 1)
           {
@@ -167,7 +170,7 @@ void setup(void) {
   setupKeypad();
   delay(2000);
   currentMode = 0;
-  currentQuestion = generateMathQuestion(currentAnswer);
+  currentQuestion = generateMathQuestion(currentAnswer, NUMBER_CEILING, true);
 }
 
 void loop(void) {
@@ -229,35 +232,6 @@ void software_Reboot() {
   }
 }
 
-void shortBeep(int Alarm_PIN) {
-  digitalWrite(Alarm_PIN, HIGH);
-  delay(5);
-  digitalWrite(Alarm_PIN, LOW);
-}
-
-void wrongBeep(int Alarm_PIN) {
-  for (int i = 0; i < 8; ++i) {
-    digitalWrite(Alarm_PIN, HIGH);
-    delay(30);
-    digitalWrite(Alarm_PIN, LOW);
-    delay(30);
-  }
-}
-
-void longBeep(int Alarm_PIN) {
-  digitalWrite(Alarm_PIN, HIGH);
-  delay(2000);
-  digitalWrite(Alarm_PIN, LOW);
-}
-
-void noBeep(int Alarm_PIN) {
-  digitalWrite(Alarm_PIN, LOW);
-}
-
-char* string2char(String command) {
-  return const_cast<char*>(command.c_str());
-}
-
 int extractResultFromAnswer(String Answer) {
   int endPos = Answer.indexOf("=");
   if (endPos > 0)
@@ -269,98 +243,4 @@ int extractResultFromAnswer(String Answer) {
   {
     return 0;
   }
-}
-
-String generateMathQuestion(String &Answer) {
-  const String strPlusSign = "+";
-  const String strMinusSign = "-";
-  const String strMultiplySign = "X";
-  const String strDivideySign = String((char)247);
-  const String strEqualSign = "=";
-  String MathQuestion = "";
-  int intFirstOperationType = random(1, 5); // 1 - plus, 2 - minus, 3 - multiply, 4 - divide
-  int intSecondOperationType = 1;
-  int intFirstNumber = 1;
-  int intSecondNumber = 1;
-  int intThirdNumber = 1;
-
-  if (intFirstOperationType == 3)
-  {
-    intSecondOperationType = random(1, 3);
-    intFirstNumber = random(1, 100);
-    intSecondNumber = random(1, 100);
-    if (intSecondOperationType == 2)
-    {
-      intThirdNumber = random(1, intFirstNumber * intSecondNumber);
-      MathQuestion = String(intFirstNumber) + strMultiplySign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strMultiplySign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber * intSecondNumber - intThirdNumber);
-    }
-    else
-    {
-      intThirdNumber = random(1, NUMBER_CEILING);
-      MathQuestion = String(intFirstNumber) + strMultiplySign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strMultiplySign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber * intSecondNumber + intThirdNumber);
-    }
-  }
-  else if (intFirstOperationType == 2)
-  {
-    intSecondOperationType = random(1, 4);
-    intFirstNumber = random(50, NUMBER_CEILING);
-    if (intSecondOperationType == 1)
-    {
-      intSecondNumber = random(0, intFirstNumber);
-      intThirdNumber = random(1, NUMBER_CEILING);
-      MathQuestion = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber - intSecondNumber + intThirdNumber);
-    }
-    else if (intSecondOperationType == 2)
-    {
-      intSecondNumber = random(30, intFirstNumber);
-      intThirdNumber = random(1, (intFirstNumber - intSecondNumber));
-      MathQuestion = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber - intSecondNumber - intThirdNumber);
-    }
-    else // multiply
-    {
-      intSecondNumber = random(1, 10);
-      intThirdNumber = random(1, 10);
-      intFirstNumber = random(intSecondNumber * intThirdNumber, NUMBER_CEILING);
-      MathQuestion = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strMinusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + String(intFirstNumber - (intSecondNumber * intThirdNumber));
-    }
-  }
-  else  if (intFirstOperationType == 1)// first operation is plus
-  {
-    intSecondOperationType = random(1, 4);
-    intFirstNumber = random(1, NUMBER_CEILING);
-    if (intSecondOperationType == 1)
-    {
-      intSecondNumber = random(1, NUMBER_CEILING);
-      intThirdNumber = random(1, NUMBER_CEILING);
-      MathQuestion = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strPlusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber + intSecondNumber + intThirdNumber);
-    }
-    else if (intSecondOperationType == 2)
-    {
-      intSecondNumber = random(1, NUMBER_CEILING);
-      intThirdNumber = random(1, (intFirstNumber - intSecondNumber));
-      MathQuestion = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMinusSign + String(intThirdNumber) + strEqualSign + String(intFirstNumber + intSecondNumber - intThirdNumber);
-    }
-    else
-    {
-      intSecondNumber = random(1, 100);
-      intThirdNumber = random(1, 100);
-      MathQuestion = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + "?";
-      Answer = String(intFirstNumber) + strPlusSign + String(intSecondNumber) + strMultiplySign + String(intThirdNumber) + strEqualSign + String(intFirstNumber + (intSecondNumber * intThirdNumber));
-    }
-  }
-  else // first operation is divide
-  {
-    intFirstNumber = random(2, 100);
-    intSecondNumber = random(2, 100);
-    MathQuestion = String(intFirstNumber * intSecondNumber) + strDivideySign + String(intFirstNumber) + strEqualSign + "?";
-    Answer = String(intFirstNumber * intSecondNumber) + strDivideySign + String(intFirstNumber) + strEqualSign + String(intSecondNumber);
-  }
-  return MathQuestion;
 }
