@@ -61,7 +61,13 @@ void scanKeypadSub(int pinNumber, String strNumber) {
       if ((millis() - keypadLastDebounce)  > keypadDebounceTime )
       {
         keypadLastDebounce = millis();
-        strReturnNumber = strReturnNumber + strNumber;
+        // Cap the entry length: results fit in 5 digits for NUMBER_CEILING
+        // 10000, and longer entries would overflow the display and silently
+        // saturate in toInt().
+        if (strReturnNumber.length() < 5)
+        {
+          strReturnNumber = strReturnNumber + strNumber;
+        }
         keypadDebounce = false;
       }
     }
@@ -157,7 +163,7 @@ void scanKeypad() {
 }
 
 void setup(void) {
-  randomSeed(analogRead(5));
+  randomSeed(analogRead(A5)); // vary the question sequence between boots (leave A5 unconnected)
   display.begin();
   display.setFontPosTop();
 
