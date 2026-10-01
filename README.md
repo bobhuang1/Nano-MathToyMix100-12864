@@ -28,3 +28,8 @@ See [Wiring.txt](Wiring.txt) for the LCD and keypad pin mapping.
 - [U8g2](https://github.com/olikraus/u8g2) (Arduino Library Manager)
 - `StringHelpers`, `AlarmBeeper`, `MathQuizGenerator` ([source](https://github.com/bobhuang1/ESP8266-Functions-Common)),
   vendored directly into this repo - re-copy from there if any of them are updated.
+
+
+## License
+
+This project is free software, released under the **GNU General Public License v3.0**. You may redistribute and/or modify it under those terms; see [LICENSE.md](LICENSE.md) for the full text.
